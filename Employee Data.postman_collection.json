@@ -1,0 +1,690 @@
+{
+	"info": {
+		"_postman_id": "53d370a0-4140-4ea2-87e3-a3f1d6b0beff",
+		"name": "Employee Data",
+		"description": "##### GET, POST, UPDATE, DELETE employee data from server and use test cases all through this collection to assertion and verification.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "36869923"
+	},
+	"item": [
+		{
+			"name": "Login API",
+			"item": [
+				{
+					"name": "Employee Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Validate success message\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData.message).to.contain(\"Login successful\",\"Test Case Passed!\");\r",
+									"});\r",
+									"\r",
+									"// Test if the response body return valid id\r",
+									"let response = pm.response.json();\r",
+									"\r",
+									"// Function to recursively search for any 'id' in an object\r",
+									"function findId(obj) {\r",
+									"    if (typeof obj !== 'object' || obj === null) return false;\r",
+									"\r",
+									"    if ('id' in obj && obj.id !== null && obj.id !== undefined) {\r",
+									"        return true;\r",
+									"    }\r",
+									"\r",
+									"    for (let key in obj) {\r",
+									"        if (findId(obj[key])) {\r",
+									"            return true;\r",
+									"        }\r",
+									"    }\r",
+									"\r",
+									"    return false;\r",
+									"}\r",
+									"\r",
+									"// Run the test\r",
+									"pm.test(\"Response contains a non-null 'id'\", function () {\r",
+									"    pm.expect(findId(response)).to.be.true;\r",
+									"});\r",
+									"\r",
+									"pm.collectionVariables.set(\"token\",response.token);\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"username\":\"admin\",\r\n    \"password\":\"admin123\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseURL}}{{login}}",
+							"host": [
+								"{{baseURL}}{{login}}"
+							]
+						},
+						"description": "Post valid login credentials and check for response from the server."
+					},
+					"response": []
+				},
+				{
+					"name": "Employee Login Wrong",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"var userNames = [\"ADMIN\", \"Admin\", \"aDmin\", \"adMin\", \"admIn\", \"admiN\"];\r",
+									"var passWords = [\"1234\", \"admin321\", \"admin3\", \"admin2\", \"admin1\"];\r",
+									"\r",
+									"var userName = userNames[Math.floor(Math.random() * userNames.length)];\r",
+									"var passWord = passWords[Math.floor(Math.random() * passWords.length)];\r",
+									"\r",
+									"pm.environment.set(\"userName\", userName);\r",
+									"pm.environment.set(\"passWord\", passWord);\r",
+									"\r",
+									"console.log(\"Selected Username:\", userName);\r",
+									"console.log(\"Selected Password:\", passWord);\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status Code is 401 Unauthorized\", function() {\r",
+									"    pm.response.to.have.status(401);\r",
+									"})\r",
+									"\r",
+									"pm.test(\"Proper error message is present\", function() {\r",
+									"    var jsomData = pm.response.json();\r",
+									"    pm.expect(jsomData.error).to.include(\"Invalid credentials\");\r",
+									"})"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disabledSystemHeaders": {}
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"username\": \"{{userName}}\",\r\n    \"password\": \"{{passWord}}\"\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseURL}}{{login}}",
+							"host": [
+								"{{baseURL}}{{login}}"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"description": "This folder is consisted of positive and negative test cases along with api-testing scripts of the login functionalities."
+		},
+		{
+			"name": "Create Employee",
+			"item": [
+				{
+					"name": "Create Employee",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();\r",
+									"\r",
+									"var firstName = jsonData.data.firstName;\r",
+									"var lastName = jsonData.data.lastName;\r",
+									"var Id = jsonData.data.id;\r",
+									"\r",
+									"pm.test(\"Status code is 201\", function () {\r",
+									"        pm.response.to.have.status(201);\r",
+									"});\r",
+									"\r",
+									"pm.test(`${firstName} ${lastName} [ID: ${Id}] has been registered as employee successfully!`, function() {\r",
+									"    pm.expect(jsonData.message).to.include(\"Employee created successfully\");\r",
+									"    console.log(jsonData.message);\r",
+									"})\r",
+									"\r",
+									"pm.environment.set(\"id\", Id);\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"firstName\": \"{{firstName}}\",\r\n    \"lastName\": \"{{lastName}}\",\r\n    \"email\": \"{{firstName}}.{{lastName}}{{$randomInt}}@gmail.com\",\r\n    \"phone\": \"{{phoneNumber}}\",\r\n    \"department\": \"{{department}}\",\r\n    \"position\": \"{{jobPosition}}\",\r\n    \"salary\": {{salary}}\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseURL}}{{endpoint}}",
+							"host": [
+								"{{baseURL}}{{endpoint}}"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"description": "**Create Employee** – Admin should create 5 employees with random data\\[**First****Name,Lastname,email,phone,department,position,salary**\\] across different  \ndepartments, and assert successful creation.",
+			"auth": {
+				"type": "bearer",
+				"bearer": [
+					{
+						"key": "token",
+						"value": "{{token}}",
+						"type": "string"
+					}
+				]
+			},
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		},
+		{
+			"name": "Get Employee Info",
+			"item": [
+				{
+					"name": "Employee Info",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const jsonData = pm.response.json(); \r",
+									"var department = jsonData.data.department;\r",
+									"\r",
+									"pm.test(`Department Matched: ${department}`, function(){\r",
+									"    pm.expect(department).to.be.eql(pm.iterationData.get(\"department\"));\r",
+									"    });\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseURL}}{{endpoint}}/{{id}}",
+							"host": [
+								"{{baseURL}}{{endpoint}}"
+							],
+							"path": [
+								"{{id}}"
+							]
+						},
+						"description": "Retrieve & validate employee info."
+					},
+					"response": []
+				}
+			],
+			"description": "Retrieve and validate that there are at least 5 employees exist with correct department details."
+		},
+		{
+			"name": "Update Employee Info",
+			"item": [
+				{
+					"name": "Create Employee",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const jsonData = pm.response.json();\r",
+									"\r",
+									"var id = jsonData.data.id;\r",
+									"var phoneNumber = jsonData.data.phone;\r",
+									"var position = jsonData.data.position;\r",
+									"\r",
+									"pm.environment.set(\"id\",id);\r",
+									"pm.environment.set(\"jobPosition\",position);\r",
+									"pm.environment.set(\"phoneNumber\", phoneNumber);\r",
+									"\r",
+									"pm.test(`Employee [id:${id}] Created Successfully!`, function () {\r",
+									"    pm.response.to.have.status(201);\r",
+									"});\r",
+									"\r",
+									"pm.test(`Mobile Number [${phoneNumber}] created Successfully!`, function(){\r",
+									"    pm.response.to.have.status(201);\r",
+									"})\r",
+									"\r",
+									"pm.test(`Job Position [${position}] created Successfully!`, function(){\r",
+									"    pm.response.to.have.status(201);\r",
+									"})"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"firstName\": \"{{$randomFirstName}}\",\r\n    \"lastName\": \"{{$randomLastName}}\",\r\n    \"email\": \"{{$randomEmail}}\",\r\n    \"phone\": \"{{$randomPhoneNumber}}\",\r\n    \"department\": \"{{$randomDepartment}}\",\r\n    \"position\": \"{{$randomJobTitle}}\",\r\n    \"salary\": {{$randomInt}}\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseURL}}{{endpoint}}",
+							"host": [
+								"{{baseURL}}{{endpoint}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Employee",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const jsonData = pm.response.json();\r",
+									"\r",
+									"var phoneNumber = pm.environment.get(\"phoneNumber\");\r",
+									"var position = pm.environment.get(\"jobPosition\");\r",
+									"\r",
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(`Phone Number Updated successfully from ${phoneNumber} to ${jsonData.data.phone}`, function () {\r",
+									"    pm.expect(jsonData.data.phone).to.not.eql(phoneNumber);\r",
+									"})\r",
+									"\r",
+									"pm.test(`Job Position Updated successfully from ${position} to ${jsonData.data.position}`, function () {\r",
+									"    pm.expect(jsonData.data.position).to.not.eql(position);\r",
+									"})\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"phone\": \"{{$randomPhoneNumber}}\",\r\n    \"position\": \"{{$randomJobDescriptor}}\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseURL}}{{endpoint}}/{{id}}",
+							"host": [
+								"{{baseURL}}{{endpoint}}"
+							],
+							"path": [
+								"{{id}}"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"description": "Modify employee mobile number and position, then assert that the information updates successfully.",
+			"auth": {
+				"type": "bearer",
+				"bearer": [
+					{
+						"key": "token",
+						"value": "{{token}}",
+						"type": "string"
+					}
+				]
+			},
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		},
+		{
+			"name": "Delete Employee",
+			"item": [
+				{
+					"name": "Delete Employee",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(`ID ${pm.environment.get(\"id\")} was deleted successfully!`, function () {\r",
+									"    pm.expect(pm.response.json().success).to.eql(true);\r",
+									"})"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}{{endpoint}}/{{id}}?permanent=true",
+							"host": [
+								"{{baseURL}}{{endpoint}}"
+							],
+							"path": [
+								"{{id}}"
+							],
+							"query": [
+								{
+									"key": "permanent",
+									"value": "true"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"description": "Delete one employee and add successful assertion.",
+			"auth": {
+				"type": "bearer",
+				"bearer": [
+					{
+						"key": "token",
+						"value": "{{token}}",
+						"type": "string"
+					}
+				]
+			},
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		},
+		{
+			"name": "Get Employees with Query Param",
+			"item": [
+				{
+					"name": "Query Param",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const jsonData = pm.response.json();\r",
+									"\r",
+									"var totalEmployee = jsonData.pagination.totalEmployees;\r",
+									"\r",
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(`Total Employees: ${totalEmployee}`, function () {\r",
+									"    pm.expect(jsonData.data.length).to.equal(totalEmployee);\r",
+									"})"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseURL}}{{endpoint}}?page=1&limit=100&status=active",
+							"host": [
+								"{{baseURL}}{{endpoint}}"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1",
+									"description": "Starting value for Pagination"
+								},
+								{
+									"key": "limit",
+									"value": "100",
+									"description": "High value for getting all employee"
+								},
+								{
+									"key": "status",
+									"value": "active",
+									"description": "For all active employee"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"description": "Search for all the employees with query param and assert that the employee count is correct.",
+			"auth": {
+				"type": "bearer",
+				"bearer": [
+					{
+						"key": "token",
+						"value": "{{token}}",
+						"type": "string"
+					}
+				]
+			},
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseURL",
+			"value": "https://crudapi-o7rr.onrender.com/api"
+		},
+		{
+			"key": "token",
+			"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcm5hbWUiOiJhZG1pbiIsImVtYWlsIjoiYWRtaW5AY29tcGFueS5jb20iLCJyb2xlIjoiYWRtaW4iLCJpYXQiOjE3NTgzODA2MTEsImV4cCI6MTc1ODQ2NzAxMX0.o2_y_-gliFQmyiycI_ZPJMqpgy2n56_L2K8Vj1nZXyU"
+		}
+	]
+}
