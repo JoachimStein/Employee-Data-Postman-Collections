@@ -12,6 +12,8 @@ In this project, we have validate the test cases and generated _Newman Report_. 
 ## How to run this project
 - ```Clone this project``` [Employee API Project](https://github.com/JoachimStein/Employee-Data-Postman-Collections.git)
 - ```Hit the Command```
+
+  
   ```bash
     npm i newman
   ```
